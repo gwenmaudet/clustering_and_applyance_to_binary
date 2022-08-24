@@ -16,15 +16,15 @@ def normalized_DTW_distance(emission_list1, emission_list2, radius=conf.DTW_radi
             return 100
 
     for i in range(0, len(emission_list1)):
-        for j in range(max(0, i - radius), min(len(emission_list2), i + radius+1)):
+        for j in range(max(0, i - radius), min(len(emission_list2), i + radius + 1)):
             dtw_matrix[i][j] = abs(emission_list1[i].emission_value - emission_list2[j].emission_value)
 
     for i in range(1, len(emission_list1)):
-        for j in range(max(1, i - radius), min(len(emission_list2), i + radius+1)):
+        for j in range(max(1, i - radius), min(len(emission_list2), i + radius + 1)):
             dtw_matrix[i][j] += min(dtw_matrix[i - 1][j], dtw_matrix[i][j - 1], dtw_matrix[i - 1][j - 1])
-    dtw_fin = dtw_matrix[len(emission_list1) - 1][len(emission_list2) - 1] / max(len(emission_list1), len(emission_list2))
+    dtw_fin = dtw_matrix[len(emission_list1) - 1][len(emission_list2) - 1] / max(len(emission_list1),
+                                                                                 len(emission_list2))
     return dtw_fin
-
 
 
 """def prepare_for_comparison_of_two_time_series(simul_time, message_list1_before, message_list2_before, observation_window = conf.max_observation_window_for_merging, nb_min_of_messages_for_comparison = conf.nb_min_of_messages_merging):
@@ -64,17 +64,17 @@ def normalized_DTW_distance(emission_list1, emission_list2, radius=conf.DTW_radi
     return message_list1, message_list2, True"""
 
 
-def prepare_for_comparison_of_two_time_series(simul_time, message_list1_before, message_list2_before,
-                                              observation_window=conf.max_observation_window_for_merging,
-                                              nb_min_of_messages_for_comparison=conf.nb_min_of_messages_splitting):
+def prepare_for_comparison_of_two_time_series(message_list1_before, message_list2_before,
+                                              nb_min_of_messages_for_comparison=conf.nb_min_of_messages_splitting,
+                                              nb_max_of_messages=None):
     if len(message_list1_before) == 0 or len(message_list2_before) == 0:
         return [], [], False
+    stamp1 = copy.deepcopy(message_list1_before)[max(0, len(message_list1_before) - nb_max_of_messages):]
+    stamp2 = copy.deepcopy(message_list2_before)[max(0, len(message_list2_before) - nb_max_of_messages):]
+    t_min = max(message_list1_before[0].time, message_list2_before[0].time)
+    """if message_list2_before[0].time > t_min or message_list1_before[0].time > t_min:
+        return message_list1_before, message_list2_before, False"""
 
-    t_min = simul_time - observation_window
-    if message_list2_before[0].time > t_min or message_list1_before[0].time > t_min:
-        return message_list1_before, message_list2_before, False
-    stamp1 = copy.deepcopy(message_list1_before)
-    stamp2 = copy.deepcopy(message_list2_before)
     new_mess1 = None
     while stamp1[0].time <= t_min:
         new_mess1 = stamp1.pop(0)
@@ -90,19 +90,25 @@ def prepare_for_comparison_of_two_time_series(simul_time, message_list1_before, 
             return message_list1_before, message_list2_before, False
     if new_mess2 is not None:
         stamp2.insert(0, new_mess2)
-    return stamp1, stamp2, True
+    if len(stamp1) >= nb_min_of_messages_for_comparison and len(stamp2) >= nb_min_of_messages_for_comparison:
+        return stamp1, stamp2, True
+    return message_list1_before, message_list2_before, False
 
 
 def update_time_series_according_to_observation_window(simul_time, message_list,
-                                                       observation_window=conf.max_observation_window_for_merging):
-    t_min = simul_time - observation_window
-    last_elt = None
+                                                       observation_window=None, nb_max_of_elt=None):
+    if observation_window is not None:
+        t_min = simul_time - observation_window
+        last_elt = None
 
-    while len(message_list) > 0 and message_list[0].time <= t_min:
-        last_elt = message_list.pop(0)
+        while len(message_list) > 0 and message_list[0].time <= t_min:
+            last_elt = message_list.pop(0)
 
-    if last_elt is not None:
-        message_list.insert(0, last_elt)
+        if last_elt is not None:
+            message_list.insert(0, last_elt)
+    if nb_max_of_elt is not None:
+        if len(message_list) - nb_max_of_elt >= 0:
+            message_list = message_list[len(message_list) - nb_max_of_elt:]
     return message_list
 
 
@@ -127,8 +133,8 @@ def remove_sensor_from_clusters(new_message, clusters, cluster_index):
     return cluster_index, clusters
 
 
-def is_the_sensor_out_of_scope(new_message, raw_sensor_message_list, clustering_messages, clusters, sensor_cluster_index):
-
+def is_the_sensor_out_of_scope(new_message, raw_sensor_message_list, clustering_messages, clusters,
+                               sensor_cluster_index):
     emissions_of_the_sensor = raw_sensor_message_list[new_message.name]
     """print(new_message.time)
     print("after")
@@ -142,9 +148,9 @@ def is_the_sensor_out_of_scope(new_message, raw_sensor_message_list, clustering_
     """print(list_to_compare1)
     print(list_to_compare2)"""
     list_to_compare1, list_to_compare2, is_possible_for_comparion = prepare_for_comparison_of_two_time_series(
-        new_message.time, emissions_of_the_sensor, clustering_messages[sensor_cluster_index],
-        observation_window=conf.max_observation_window_for_splitting,
-        nb_min_of_messages_for_comparison=conf.nb_min_of_messages_splitting)
+        emissions_of_the_sensor, clustering_messages[sensor_cluster_index],
+        nb_min_of_messages_for_comparison=conf.nb_min_of_messages_splitting,
+        nb_max_of_messages=conf.nb_max_total_for_messages_splitting)
     if is_possible_for_comparion:
         distance = normalized_DTW_distance(list_to_compare1, list_to_compare2)
         if distance > conf.max_distance_for_splitting * (2 * len(clusters[sensor_cluster_index]) - 1) / (2 * len(
@@ -184,16 +190,15 @@ def is_the_sensor_out_of_scope(new_message, raw_sensor_message_list, clustering_
     return TS1"""
 
 
-def do_merging_if_necessary(simul_time, cluster_index, clustering_messages, clusters):
+def do_merging_if_necessary(cluster_index, clustering_messages, clusters):
     max_number_of_sensor_in_the_cluster = 1
     chosen_cluster = None
     emissions_of_the_interesting_cluster = copy.deepcopy(clustering_messages[cluster_index])
     for other_cluster_index in clusters:
         if other_cluster_index != cluster_index:
             list_to_compare1, list_to_compare2, is_possible_for_comparion = prepare_for_comparison_of_two_time_series(
-                simul_time, emissions_of_the_interesting_cluster, clustering_messages[other_cluster_index],
-                observation_window=conf.max_observation_window_for_merging,
-                nb_min_of_messages_for_comparison=conf.nb_min_of_messages_merging)
+                emissions_of_the_interesting_cluster, clustering_messages[other_cluster_index],
+                nb_min_of_messages_for_comparison=conf.nb_min_of_messages_merging, nb_max_of_messages=conf.nb_max_total_for_messages_merging)
             if is_possible_for_comparion:
 
                 distance = normalized_DTW_distance(list_to_compare1, list_to_compare2)
@@ -234,7 +239,7 @@ def do_merging_if_necessary(simul_time, cluster_index, clustering_messages, clus
 # 'clusters' : {cluster_index:[sensor_ids..]}
 # clustering_messages : {cluster_index[message 1, message 2 ..]}
 # sensor_message_listfor_clustering and raw_sensor_message_list : {sensor_id : [list of emissions...]}
-def clustering_method(new_message, start_clustering = conf.start_clustering):
+def clustering_method(new_message, start_clustering=conf.start_clustering):
     global clustering_messages
     global raw_sensor_message_list
     global clusters
@@ -284,16 +289,16 @@ def clustering_method(new_message, start_clustering = conf.start_clustering):
             clustering_messages[cluster_index_of_the_sensor] = update_time_series_according_to_observation_window(
                 new_message.time,
                 clustering_messages[cluster_index_of_the_sensor],
-                observation_window=1 * conf.max_observation_window_for_merging)
+                nb_max_of_elt=max([conf.nb_max_total_for_messages_merging, conf.nb_max_total_for_messages_splitting]))
             raw_sensor_message_list[new_message.name] = update_time_series_according_to_observation_window(
                 new_message.time,
                 raw_sensor_message_list[
                     new_message.name],
-                observation_window=1 * conf.max_observation_window_for_merging)
-
+                nb_max_of_elt=max([conf.nb_max_total_for_messages_merging, conf.nb_max_total_for_messages_splitting]))
 
             is_out, cluster_index_of_the_sensor = is_the_sensor_out_of_scope(new_message, raw_sensor_message_list,
-                                                                             clustering_messages, clusters, cluster_index_of_the_sensor)
+                                                                             clustering_messages, clusters,
+                                                                             cluster_index_of_the_sensor)
             raw_sensor_message_list[new_message.name].append(new_message)
 
             if is_out:
@@ -313,7 +318,7 @@ def clustering_method(new_message, start_clustering = conf.start_clustering):
                 raw_sensor_message_list.pop(new_message.name)
                 return cluster_index_of_the_sensor
             # raw_sensor_message_list[new_message.name].append(new_message)
-            cluster_index_of_the_sensor, clusters, clustering_messages = do_merging_if_necessary(new_message.time,
+            cluster_index_of_the_sensor, clusters, clustering_messages = do_merging_if_necessary(
                                                                                                  cluster_index_of_the_sensor,
                                                                                                  clustering_messages,
                                                                                                  clusters)
@@ -329,7 +334,7 @@ def clustering_method(new_message, start_clustering = conf.start_clustering):
             print(clustering_messages[cluster_index_of_the_sensor][0])
             print(clustering_messages[cluster_index_of_the_sensor][0].time)"""
             # print("cluster")
-            clustering_messages[cluster_index_of_the_sensor] = update_time_series_according_to_observation_window(
+            """clustering_messages[cluster_index_of_the_sensor] = update_time_series_according_to_observation_window(
                 new_message.time,
                 clustering_messages[cluster_index_of_the_sensor],
                 observation_window=conf.max_observation_window_for_merging)
@@ -338,7 +343,7 @@ def clustering_method(new_message, start_clustering = conf.start_clustering):
                 new_message.time,
                 raw_sensor_message_list[
                     new_message.name],
-                observation_window=2 * conf.max_observation_window_for_merging)
+                observation_window=2 * conf.max_observation_window_for_merging)"""
     return cluster_index_of_the_sensor
     # raw_sensor_message_list = update_time_series_according_to_observation_window(new_message.time, raw_sensor_message_list)
     # sensor_message_list_for_comparison = modify_time_series_for_the_clustering(new_message, raw_sensor_message_list)

@@ -23,7 +23,7 @@ def insert_event_in_event_list(elm, event):
 ####battery_variation mode : 0= consumption for emission, and period change ; 1 = consumption only for emission ; 2 = exponentially according to the period
 class sensor:
     def __init__(self, p1, p2, period=100, name="sensor",
-                 battery=conf.C, fst_wake_up=0, event=[], shut_down=10000000000000000000000000000, battery_type=0, precision = 1):
+                 battery=conf.C, fst_wake_up=0, event=[], shut_down=10000000000000000000000000000, battery_type=0, precision = conf.sensor_precision):
         self.expected_next_emission = None
         self.period = period
         self.battery = battery

@@ -106,9 +106,9 @@ def do_the_simulation(tau, period_update_funct_strat=2, clustering_method=cluste
         view = sensor_view(evt, emission_value, simul_time, battery=True)
         if period_update_funct_strat == 0:
             cluster_index = evt.name
-            new_period = binary_tree(view, evt.wake_up, tau, cluster_index, M=0,
-                                     known_battery=True, )
-            cluster_index = clustering_method(view)
+            new_period = tau
+            #new_period = binary_tree(view, evt.wake_up, tau, cluster_index, M=0, known_battery=True, )
+            #cluster_index = clustering_method(view)
             """elif period_update_funct_strat == 1:
             cluster_index = 0"""
         elif period_update_funct_strat == 2:  # if clustering == 2

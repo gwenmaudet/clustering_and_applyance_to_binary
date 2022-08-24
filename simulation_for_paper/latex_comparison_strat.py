@@ -282,7 +282,7 @@ def get_duration_according_to(output_clusters):
     return time
 
 
-"""def put_in_json_life_spans_according_to_quantile_precision():
+def put_in_json_life_spans_according_to_quantile_precision():
     ## INITIALISATION
     for clustering in ['0', '2']:
 
@@ -315,6 +315,7 @@ def get_duration_according_to(output_clusters):
                 life_span_precision = json.load(file)
             print("is doing for tau = " + str(tau))
             if tau not in life_span_precision.keys():
+                """
                 list_distance_T1 = []
                 list_distance_T2 = []
                 cluster_id_index_T1 = []
@@ -412,8 +413,8 @@ def get_duration_according_to(output_clusters):
                 plt.show()
                 life_span_precision[tau] = {"quantile": max(quantile_1,quantile_2), "duration_T1": duration_T1,
                                             "duration_T2": duration_T2, "clusters_T1":cluster_id_index_T1, "clusters_T2": cluster_id_index_T2 }
-
-                for index in cluster_id_index_T1:
+                """
+                for index in  main_results_clustering[tau]:
                     times = []
                     values = []
                     # print(output[index])
@@ -421,7 +422,7 @@ def get_duration_according_to(output_clusters):
                         times.append(elt["time"])
                         values.append(elt["value"])
                     plt.scatter(times, values, label="Cluster index T1")
-                times = []
+                """times = []
                 values = []
                 for index in cluster_id_index_T2:
 
@@ -429,7 +430,7 @@ def get_duration_according_to(output_clusters):
                     for elt in main_results_clustering[tau][index]:
                         times.append(elt["time"])
                         values.append(elt["value"])
-                plt.scatter(times, values, label="Cluster index T2")
+                plt.scatter(times, values, label="Cluster index T2")"""
                 plt.legend()
                 plt.show()
 
@@ -438,86 +439,7 @@ def get_duration_according_to(output_clusters):
                         "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\life_span_precision_" + str(
                             clustering) + ".json",
                         'w+') as file:
-                    json.dump(life_span_precision, file)"""
-def put_in_json_life_spans_according_to_quantile_precision():
-    ## INITIALISATION
-    for clustering in ['0', '2']:
-
-
-        init = {}
-        with open(
-                "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\life_span_precision_" + str(
-                    clustering) + ".json",
-                'w+') as file:
-            json.dump(init, file)
-
-    ## COMPLETION
-    for clustering in ['2', '0']:
-
-        with open(
-                "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\nb_of_clusters" + str(
-                    clustering) + ".json",
-                'r+') as file:
-            main_nb_of_clusters = json.load(file)
-        with open(
-                "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\results_according_to_label" + str(
-                    clustering) + ".json",
-                'r+') as file:
-            main_results_clustering = json.load(file)
-        for tau in main_results_clustering:
-            with open(
-                    "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\life_span_precision_" + str(
-                        clustering) + ".json",
-                    'r+') as file:
-                life_span_precision = json.load(file)
-            print("is doing for tau = " + str(tau))
-            if tau not in life_span_precision.keys():
-                plot_clustering_method(main_results_clustering[tau])
-                """k_phenomena = build_estimation_according_to_clusterings(2, main_results_clustering[tau])
-                distance_k_0_w_T1 = all_distances_between_reception_and_one_fct(
-                                k_phenomena[0],
-                                conf.T1)
-                distance_k_0_w_T2 = all_distances_between_reception_and_one_fct(
-                    k_phenomena[0],
-                    conf.T2)
-                if distance_k_0_w_T1<distance_k_0_w_T2:
-                    quantile_1 =round(np.quantile(distance_k_0_w_T1, .95), 4)
-                    duration_T1 = k_phenomena[0][-1]["time"] - k_phenomena[0][0]["time"]
-
-                    distance_k_1_w_T2 = all_distances_between_reception_and_one_fct(
-                        k_phenomena[1],
-                        conf.T2)
-                    quantile_2 = round( np.quantile(distance_k_1_w_T2, .95), 4)
-                    duration_T2 = k_phenomena[1][-1]["time"] - k_phenomena[1][0]["time"]
-                else:
-                    quantile_2 = round(np.quantile(distance_k_0_w_T2, .95), 4)
-                    duration_T2 = k_phenomena[0][-1]["time"] - k_phenomena[0][0]["time"]
-                    distance_k_1_w_T1 = all_distances_between_reception_and_one_fct(
-                        k_phenomena[1],
-                        conf.T1)
-                    quantile_1 = round(np.quantile(distance_k_1_w_T1, .95), 4)
-                    duration_T1 = k_phenomena[1][-1]["time"] - k_phenomena[1][0]["time"]
-                life_span_precision[tau] = {"quantile": max(quantile_1,quantile_2), "duration_T1": duration_T1,
-                                            "duration_T2": duration_T2}
-                for emissions in k_phenomena:
-                    times = []
-                    values = []
-                    # print(output[index])
-                    for elt in emissions:
-                        times.append(elt["time"])
-                        values.append(elt["value"])
-                    plt.scatter(times, values, label="Cluster index T")
-                plt.legend()
-                plt.show()"""
-
-
-                """with open(
-                        "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\life_span_precision_" + str(
-                            clustering) + ".json",
-                        'w+') as file:
-                    json.dump(life_span_precision, file)"""
-
-
+                    json.dump(life_span_precision, file)
 
 
 def plot_life_spans_according_to_quantile_precision():
@@ -645,6 +567,13 @@ def write_latex_life_span_according_to_precision():
             fout.write("};")
 
 if __name__ == '__main__':
-    put_in_json_life_spans_according_to_quantile_precision()
+    #put_in_json_life_spans_according_to_quantile_precision()
     #plot_life_spans_according_to_quantile_precision()
     #write_latex_life_span_according_to_precision()
+    with open(
+            "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\results_according_to_label" + str(
+                2) + ".json",
+            'r+') as file:
+        main_results_clustering = json.load(file)
+    output = main_results_clustering['0.25']
+    plot_clustering_method(output)

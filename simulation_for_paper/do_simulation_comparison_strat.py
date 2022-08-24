@@ -5,7 +5,7 @@ from phenomena_construction_and_simulation_core.simulation_of_transmissions impo
 
 def do_simulation_for_multiple_tau_for_period_update_func_strat_comparison(taus, period_update_funct_strat=True):
     # initialisation
-    """init = {}
+    init = {}
     with open(
             "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\raw_results" + str(
                 period_update_funct_strat) + ".json",
@@ -21,7 +21,7 @@ def do_simulation_for_multiple_tau_for_period_update_func_strat_comparison(taus,
             "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\results_according_to_label" + str(
                 period_update_funct_strat) + ".json",
             'w+') as file:
-        json.dump(init, file)"""
+        json.dump(init, file)
 
 
     # completion
@@ -100,11 +100,16 @@ if __name__ == '__main__':
 
     #taus = [round(0.001 + i * 0.01, 3) for i in range(1, 200, 2)]
     #taus = [round(i * 0.02, 3) for i in range(50, 100, 1)]
-    taus = [round(0.51 + i * 0.1, 3) for i in range(0, 30)]
+
+
+    #taus = [round((0.5 + i * 0.02) * 3 + 0.01, 3) for i in range(0,40)]
+
+
+    """taus = [round((8 + i * 0.4), 3) for i in range(0, 20)]
+    do_simulation_for_multiple_tau_for_period_update_func_strat_comparison(taus, period_update_funct_strat=0)"""
+
+    taus = [round(0.07 + i * 0.05, 3) for i in range(0, 40)]
     do_simulation_for_multiple_tau_for_period_update_func_strat_comparison(taus, period_update_funct_strat=2)
 
     #taus = [round(i * 0.02, 3) for i in range(200, 400, 4)]
-
-    taus = [round(3.1 + i * 1, 3) for i in range(0,30)]
-    do_simulation_for_multiple_tau_for_period_update_func_strat_comparison(taus, period_update_funct_strat=0)
     # for cluster_index in output:

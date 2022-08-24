@@ -7,36 +7,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def build_T1_T2_in_json():
+def build_T1_T2_in_json(name="T1", initial_temp = conf.T1_initial_temp, t_max = conf.stopping_time):
     t_min = conf.beggining_time
-    t_max = conf.stopping_time
-    ts_T1 = [t_min + i * conf.T1_step for i in range(int((t_max - t_min)/conf.T1_step))]
-    ts_T2 = [t_min + i * conf.T2_step for i in range(int((t_max - t_min)/conf.T2_step))]
-    json_initialised = {}
+    ts_T1 = [t_min + i * conf.step for i in range(int((t_max - t_min) / conf.step))]
     vals_T1 = []
-    last_temp = conf.T1_initial_temp
+    last_temp = initial_temp
     for i in range(len(ts_T1)):
         p = random.random()
         if p<0.5:
-            last_temp -= conf.T1_amplitude_variation
+            last_temp -= conf.amplitude_variation
         else:
-            last_temp += conf.T1_amplitude_variation
+            last_temp += conf.amplitude_variation
         vals_T1.append(last_temp)
     json_file = {"times":ts_T1,"vals":vals_T1}
-    with open("C:\\Users\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\T1_changing_points.json", 'w+') as file:
-        json.dump(json_file, file)
-    vals_T2 = []
-    last_temp = conf.T2_initial_temp
-    for i in range(len(ts_T2)):
-        p = random.random()
-        if p < 0.5:
-            last_temp -= conf.T2_amplitude_variation
-        else:
-            last_temp += conf.T2_amplitude_variation
-        vals_T2.append(last_temp)
-    json_file = {"times":ts_T2, "vals":vals_T2}
-    with open("C:\\Users\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\T2_changing_points.json",
-              'w+') as file:
+    with open("C:\\Users\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\" + name + "_changing_points.json", 'w+') as file:
         json.dump(json_file, file)
 
 
@@ -44,7 +28,7 @@ def build_T1_T2_in_json():
 
 def plot_T1_T2_sensors():
 
-    nb_of_values = 1200000
+    nb_of_values = 120000
     """ with open(
             "C:\\Users\\Gwen Maudet\\PycharmProjects\\clustering and applyance to binary\\json_files\\sensor_vals.json",
             'r') as file:
@@ -62,6 +46,7 @@ def plot_T1_T2_sensors():
             'r') as file:
         json_f = json.load(file)
         plt.plot(json_f["times"][0:nb_of_values],json_f["vals"][0:nb_of_values], label="T2", color="red",  linewidth=7.0)
+
     plt.legend()
     plt.xlabel("time")
     plt.ylabel("physical quantity")
@@ -137,7 +122,8 @@ def write_a_latex_code_for_T1_T2_zoom():
 
 
 if __name__ == '__main__':
-    build_T1_T2_in_json()
+    #build_T1_T2_in_json(name="T1", initial_temp=conf.T1_initial_temp)
+    #build_T1_T2_in_json(name="T2", initial_temp=conf.T2_initial_temp)
     #build_sensor_vals_in_json()
     #write_a_latex_code_for_T1_T2()
     #write_a_latex_code_for_T1_T2_zoom()
